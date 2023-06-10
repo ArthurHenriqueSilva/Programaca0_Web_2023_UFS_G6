@@ -1,0 +1,3 @@
+Etapas do desenvolvimento do Banco de Dados e da API que o alimentará.
+
+Nesse repositório estarão os arquivos base no formato csv, os modelos conceitual e lógico do Banco de Dados, a API e o link para a instância EC2 na AWS que hospedrá o Banco.
