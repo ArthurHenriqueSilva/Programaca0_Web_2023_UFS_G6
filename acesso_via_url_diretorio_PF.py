@@ -19,4 +19,13 @@ for file_url in file_links:
     response = requests.get(file_url)
     csv_content = response.content
 
-    print(csv_content.decode('utf-8'))
+    dados = csv_content.strip().split(';')
+    if dados[0] != 'UF':
+            dados_json = {
+                'uf':dados[0],
+                'pais':dados[1],
+                'classificacao':dados[2],
+                'qtd':dados[3]
+            }
+
+    print(dados)
