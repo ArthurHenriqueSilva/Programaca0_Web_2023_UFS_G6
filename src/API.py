@@ -35,7 +35,7 @@ estados = {
 
 app = Flask(__name__)  # create Flask app
 
-app.config['SQLALCHEMY_DATABASE_URI'] = '**'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@database-prog-web-g6.cuokvhdjyvdp.us-east-1.rds.amazonaws.com/banco_pweb"'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
