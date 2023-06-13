@@ -29,11 +29,12 @@ estados = {
     'SC': 'Santa Catarina',
     'SP': 'São Paulo',
     'SE': 'Sergipe',
-    'TO': 'Tocantins'
+    'TO': 'Tocantins',
+    '--':'Indefinido'
 }
 
 
-app = Flask(_name_)  # create Flask app
+app = Flask(__name__)  # create Flask app
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:chaveacesso@db-instance-prog-web.cuokvhdjyvdp.us-east-1.rds.amazonaws.com/Database_SISMIGRA'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -42,16 +43,16 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 class Registro(db.Model):
-    _tablename_ = "Registro"
+    __tablename__ = "Registro"
 
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
-    uf = db.Column(db.String(2), db.ForeignKey('uf.Nome'))
-    Pais = db.Column(db.String(50), db.ForeignKey('Pais.Nome'))
+    uf = db.Column(db.String(2), db.ForeignKey('UF.nome'))
+    pais = db.Column(db.String(50), db.ForeignKey('Pais.nome'))
     Classificacao = db.Column(db.String(15))
     qtd = db.Column(db.Integer())
     mes = db.Column(db.Integer())
 
-    def _init_(self, uf, pais, classificacao, qtd, mes):
+    def __init__(self, uf, pais, classificacao, qtd, mes):
         self.uf = uf
         self.pais = pais
         self.classificacao = classificacao
@@ -60,61 +61,61 @@ class Registro(db.Model):
 
 
 class Residente(db.Model):
-    _tablename_ = 'Residente'
+    __tablename__ = 'Residente'
 
-    id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
-    uf = db.Column(db.String(2), db.ForeignKey('uf.Nome'))
-    Pais = db.Column(db.String(50), db.Foreignkey('Pais.Nome'))
+    id = db.Column(db.Integer(), db.ForeignKey('Registro.id'), primary_key=True,)
+    uf = db.Column(db.String(2), db.ForeignKey('UF.nome'))
+    pais = db.Column(db.String(50), db.ForeignKey('Pais.nome'))
     qtd = db.Column(db.Integer())
 
-    def _init_(self, uf, pais, qtd):
+    def __init__(self, uf, pais, qtd):
         self.uf = uf
         self.pais = pais
         self.qtd = qtd
 
 class Provisorio(db.Model):
-    _tablename_ = 'Provisorio'
+    __tablename__ = 'Provisorio'
     
-    id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
-    uf = db.Column(db.String(2), db.ForeignKey('uf.Nome'))
-    Pais = db.Column(db.String(50), db.Foreignkey('Pais.Nome'))
+    id = db.Column(db.Integer(), db.ForeignKey('Registro.id'), primary_key=True)
+    uf = db.Column(db.String(2), db.ForeignKey('UF.nome'))
+    pais = db.Column(db.String(50), db.ForeignKey('Pais.nome'))
     qtd = db.Column(db.Integer())
 
-    def _init_(self, uf, pais, qtd):
+    def __init__(self, uf, pais, qtd):
         self.uf = uf
         self.pais = pais
         self.qtd = qtd
 
 class Temporario(db.Model):
-    _tablename_ = 'Temporario'
+    __tablename__ = 'Temporario'
     
-    id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
-    uf = db.Column(db.String(2), db.ForeignKey('UF.Nome'))
-    Pais = db.Column(db.String(50), db.Foreignkey('Pais.Nome'))
+    id = db.Column(db.Integer(), db.ForeignKey('Registro.id'), primary_key=True)
+    uf = db.Column(db.String(2), db.ForeignKey('UF.nome'))
+    pais = db.Column(db.String(50), db.ForeignKey('Pais.nome'))
     qtd = db.Column(db.Integer())
 
-    def _init_(self, uf, pais, qtd):
+    def __init__(self, uf, pais, qtd):
         self.uf = uf
         self.pais = pais
         self.qtd = qtd
 
 
 class Pais(db.Model):
-    _tablename_ = 'Pais'
+    __tablename__ = 'Pais'
 
-    nome = db.Column(db.String(50), primarykey=True)
+    nome = db.Column(db.String(50), primary_key=True)
 
-    def _init_(self, nome):
+    def __init__(self, nome):
         self.nome = nome
 
 
 class UF(db.Model):
-    _tablename_ = 'UF'
+    __tablename__ = 'UF'
 
-    nome = db.Column(db.String(2), primarykey=True)
+    nome = db.Column(db.String(2), primary_key=True)
     nome_extenso = db.Column(db.String(15))
 
-    def _init_(self, nome, nome_ex):
+    def __init__(self, nome, nome_ex):
         self.nome = nome
         self.nome_extenso = nome_ex
 
@@ -141,15 +142,28 @@ def cadastrar_temporario(uf, pais, qtd):
 
 # Cadastro de País
 def cadastrar_pais(nome_pais):
+    # Verifica se o país já existe no banco de dados
+    existing_pais = Pais.query.filter_by(nome=nome_pais).first()
+    if existing_pais:
+        # País já existe, faça o tratamento adequado
+        return
+
     new_pais = Pais(nome_pais)
     db.session.add(new_pais)
     db.session.commit()
 
 # Cadastro de UF
 def cadastrar_uf(sigla):
+    # Verifica se a UF já existe no banco de dados
+    existing_uf = UF.query.filter_by(nome=sigla).first()
+    if existing_uf:
+        # UF já existe, faça o tratamento adequado
+        return
+
     new_uf = UF(sigla, estados[sigla])
     db.session.add(new_uf)
     db.session.commit()
+
 # ---------- Funções Aux DA API -------------
 
 
@@ -160,7 +174,7 @@ def cadastrar_uf(sigla):
 @app.route('/registros', methods=['POST'])
 def cadastrar_registro():
     # Verifica se a solicitação possui todos os campos necessários
-    if not request.json or 'uf' not in request.json or 'pais' not in request.json or 'classificacao' not in request.json or 'qtd' not in request.json or 'mes' not in request.json:
+    if not request.json or 'uf' not in request.json or 'pais' not in request.json or 'classificacao' not in request.json or 'qtd' not in request.json:
         return jsonify({'error': 'Solicitação inválida. Certifique-se de fornecer todos os campos necessários.'}), 400
 
     # Cria um novo registro
@@ -185,6 +199,7 @@ def cadastrar_registro():
     elif classificacao == 'provisório':
         cadastrar_provisorio(new_registro.uf, new_registro.pais, new_registro.qtd)
     else:
+        print(new_registro.pais)
         cadastrar_temporario(new_registro.uf, new_registro.pais, new_registro.qtd)
 
     # Adiciona o novo registro ao banco de dados
@@ -201,3 +216,4 @@ def cadastrar_registro():
     }), 200
 
 # ------------- ROTAS DA API -------------
+
