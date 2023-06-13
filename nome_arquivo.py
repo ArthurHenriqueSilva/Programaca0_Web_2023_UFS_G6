@@ -1,4 +1,5 @@
 from src.API import *
+import json
 
 def nome_arquivo(nome_arq,mes):
     nome_arq1 = nome_arq[:31]
@@ -11,12 +12,13 @@ def adiciona_dados(nome_arq):
     for dados in linhas:
         dados = dados.strip().split(';')
         if dados[0] != 'UF':
-            dados_json = {
-                'uf':dados[0],
+            dados_json = json.dumps({
+                'uf': dados[0],
                 'pais':dados[1],
                 'classificacao':dados[2],
-                'qtd':dados[3]
-            }
+                'qtd':int(dados[3]),
+                'mes':int(dados[4]),
+            })
             cadastrar_registro(dados_json)
             
 nome_arq = "SISMIGRA_REGISTROS_ATIVOS_2022_00.csv"
