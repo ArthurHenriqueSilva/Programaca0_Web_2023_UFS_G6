@@ -35,7 +35,7 @@ estados = {
 
 app = Flask(_name_)  # create Flask app
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@dbprogweb.cuokvhdjyvdp.us-east-1.rds.amazonaws.com/postgres"'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:chaveacesso@db-instance-prog-web.cuokvhdjyvdp.us-east-1.rds.amazonaws.com/Database_SISMIGRA'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
@@ -49,12 +49,14 @@ class Registro(db.Model):
     Pais = db.Column(db.String(50), db.ForeignKey('Pais.Nome'))
     Classificacao = db.Column(db.String(15))
     qtd = db.Column(db.Integer())
+    mes = db.Column(db.Integer())
 
-    def _init_(self, uf, pais, classificacao, qtd):
+    def _init_(self, uf, pais, classificacao, qtd, mes):
         self.uf = uf
         self.pais = pais
         self.classificacao = classificacao
         self.qtd = qtd
+        self.mes = mes
 
 
 class Residente(db.Model):
@@ -158,7 +160,7 @@ def cadastrar_uf(sigla):
 @app.route('/registros', methods=['POST'])
 def cadastrar_registro():
     # Verifica se a solicitação possui todos os campos necessários
-    if not request.json or 'uf' not in request.json or 'pais' not in request.json or 'classificacao' not in request.json or 'qtd' not in request.json:
+    if not request.json or 'uf' not in request.json or 'pais' not in request.json or 'classificacao' not in request.json or 'qtd' not in request.json or 'mes' not in request.json:
         return jsonify({'error': 'Solicitação inválida. Certifique-se de fornecer todos os campos necessários.'}), 400
 
     # Cria um novo registro
@@ -166,7 +168,8 @@ def cadastrar_registro():
         request.json['uf'],
         request.json['pais'],
         request.json['classificacao'],
-        request.json['qtd']
+        request.json['qtd'],
+        request.json['mes']
     )
 
     # Converte a classificação para minúsculas
