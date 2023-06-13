@@ -35,12 +35,10 @@ estados = {
 
 
 app = Flask(__name__)  # create Flask app
-
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:chaveacesso@db-instance-prog-web.cuokvhdjyvdp.us-east-1.rds.amazonaws.com/Database_SISMIGRA'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-
 db = SQLAlchemy(app)
+
 
 class Registro(db.Model):
     __tablename__ = "Registro"
@@ -99,6 +97,19 @@ class Temporario(db.Model):
         self.pais = pais
         self.qtd = qtd
 
+class Fronteirico(db.Model):
+    __tablename__ = 'Fronteirico'
+    
+    id = db.Column(db.Integer(), db.ForeignKey('Registro.id'), primary_key=True)
+    uf = db.Column(db.String(2), db.ForeignKey('UF.nome'))
+    pais = db.Column(db.String(50), db.ForeignKey('Pais.nome'))
+    qtd = db.Column(db.Integer())
+
+    def __init__(self, uf, pais, qtd):
+        self.uf = uf
+        self.pais = pais
+        self.qtd = qtd
+
 
 class Pais(db.Model):
     __tablename__ = 'Pais'
@@ -126,6 +137,11 @@ class UF(db.Model):
 def cadastrar_residente(uf, pais, qtd):
     new_residente = Residente(uf, pais, qtd)
     db.session.add(new_residente)
+    db.session.commit()
+
+def cadastrar_fronteirico(uf, pais, qtd):
+    new_front = Fronteirico(uf, pais, qtd)
+    db.session.add(new_front)
     db.session.commit()
 
 # Cadastro de Imigrante Provisório
@@ -198,9 +214,10 @@ def cadastrar_registro():
         cadastrar_residente(new_registro.uf, new_registro.pais, new_registro.qtd)
     elif classificacao == 'provisório':
         cadastrar_provisorio(new_registro.uf, new_registro.pais, new_registro.qtd)
-    else:
-        print(new_registro.pais)
+    elif classificacao == 'temporario':
         cadastrar_temporario(new_registro.uf, new_registro.pais, new_registro.qtd)
+    else:
+        cadastrar_fronteirico(new_registro.uf, new_registro.pais, new_registro.qtd)
 
     # Adiciona o novo registro ao banco de dados
     db.session.add(new_registro)
@@ -217,3 +234,5 @@ def cadastrar_registro():
 
 # ------------- ROTAS DA API -------------
 
+# with app.app_context():
+#     db.create_all()
