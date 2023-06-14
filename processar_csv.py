@@ -36,10 +36,15 @@ class TestAPI(unittest.TestCase):
             csv_text = csv_content.decode('utf-8').replace('\r', '').strip()
             rows = csv_text.split('\n')
             # Skip the header row
+            count = 1
             for row in rows:
                 dado = row.split(';')
+                
                 if dado == ['\ufeffUF', 'NACIONALIDADE', 'CLASSIFICACAO', 'QTD']:
                     continue
+                if dado[1] == None:
+                    dado[1] = "Não informado"
+                print(dado , '/// contador:', count)
                 if len(dado) >= 4:
                     registro = {
                         'uf': dado[0],
@@ -51,6 +56,7 @@ class TestAPI(unittest.TestCase):
                     # Executa a requisição local
                 response = self.app.post('registros', json=registro)
                 self.assertEqual(response.status_code, 200)
+                count += 1
 
     def test_processar_csvs(self):
         self.processar_csvs()
