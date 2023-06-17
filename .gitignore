@@ -1,4 +1,5 @@
 console.suo
+.*
 .venv
 .vscode
 ```
