@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
-from API import Registro, Residente, Provisorio, Temporario, Fronteirico, UF, app, db
+from API import *
 
 #1: Qual a distribuição de imigrantes pelo país?
 
@@ -96,12 +96,9 @@ def classificacao_pais_tempo(pais_filtro, mes_filtro):
     pais_filtro = pais_filtro.upper()
     with app.app_context():
         
-        registros = Registro.query.filter(Registro.pais == pais_filtro, Registro.mes == mes_filtro).all()
+        registros = Registro.query(Registro.classificacao, db.func.sum(Registro.qtd)).filter(Registro.pais == pais_filtro, Registro.mes == mes_filtro).all() \
+            .group_by(Registro.classificacao) \
+            .order_by(db.desc) \
+            .first()
 
-        soma_classificacao = {}
-        for registro in registros:
-            tipo_classificacao = registro.Classificacao
-            soma_classificacao[tipo_classificacao] = soma_classificacao.get(tipo_classificacao, 0) + 1
-        
-        classificacao_mais_recebida = max(soma_classificacao, key=soma_classificacao.get)
-        return classificacao_mais_recebida
+    return str(registros.classificacao)
