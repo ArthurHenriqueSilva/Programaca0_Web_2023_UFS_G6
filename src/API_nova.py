@@ -87,6 +87,18 @@ def uf_nome_extenso(sigla):
     nome_extenso_uf = filtro.nome_extenso
     return nome_extenso_uf
 
+# 5: Qual o evento do estado X que chama mais atenção para o imigrante de tipo Y?
+
+def consulta_mes_mais_atrativo (uf_filtro, classificacao_filtro):
+    with app.app_context():
+        
+        registros = db_session.query(Registro.mes, db.func.sum(Registro.qtd)).filter(Registro.uf == uf_filtro, Registro.Classificacao == classificacao_filtro).all() \
+            .group_by(Registro.mes) \
+            .order_by(db.desc('Total')) \
+            .first()
+        
+    return str(registros.mes)
+
 # 7: Qual estado recebe mais imigrantes do país X?
 def consulta_estado_com_mais_imigrantes(pais_filtro):
     pais_filtro = pais_filtro.upper()
@@ -109,7 +121,46 @@ def consulta_estado_com_mais_imigrantes(pais_filtro):
         # Retornar o estado e a quantidade de imigrantes
         return estado_mais_imigrantes, soma_por_estado[estado_mais_imigrantes]
     
+# 9: Qual país mais imigra no período de maior chegada de imigrantes no país?
 
+def consulta_pais_imigracao_periodo_popular():
+    pais_popular = consulta_pais_imigracao()
+    periodo_popular = consulta_periodo_popular()
+    pais_popular = pais_popular.upper()
+    with app.app_context():
+
+        registros = db.session.query(Registro.pais, db.func.sum(Registro.qtd)).filter(Registro.pais == pais_popular, Registro.mes == periodo_popular).all() \
+            .group_by(Registro.pais) \
+            .order_by(db.desc('Total')) \
+            .first()
+        
+    return str(registros.pais)
+
+# 10: Qual a classificação do país X que mais recebemos no tempo Y?
+
+def consulta_classificacao_pais_tempo(pais_filtro, mes_filtro):
+    pais_filtro = pais_filtro.upper()
+    with app.app_context():
+        
+        registros = Registro.query(Registro.classificacao, db.func.sum(Registro.qtd)).filter(Registro.pais == pais_filtro, Registro.mes == mes_filtro).all() \
+            .group_by(Registro.classificacao) \
+            .order_by(db.desc) \
+            .first()
+
+    return str(registros.classificacao)
+
+#Rota 5
+
+@app.route('/api/mes-que-chama-mais-atencao-para-o-imigrante-em-um-estado', methods=['POST'])
+def mes_mais_atrativo(uf_filtro, classificacao_filtro):
+    registros = db_session.query(Registro.mes, db.func.sum(Registro.qtd)).filter(Registro.uf == uf_filtro, Registro.Classificacao == classificacao_filtro).all() \
+        .group_by(Registro.mes) \
+        .order_by(db.desc('Total')) \
+        .first()
+        
+return render_template('index.html', retorno_mes_que_chama_mais_atencao_para_o_imigrante_em_um_estado=str(registros.mes))
+
+#Rota 7
 
 @app.route('/api/estado-com-mais-imigrantes', methods=['POST'])
 def estado_mais_imigrantes():
@@ -117,5 +168,35 @@ def estado_mais_imigrantes():
     estado_mais_imigrantes, qtd_estado = consulta_estado_com_mais_imigrantes(pais_filtro)
     estado_nome = estados[estado_mais_imigrantes]
     return jsonify({'estado': estado_nome, 'quantidade': qtd_estado})
+
+#Rota 9
+
+@app.route('/api/pais-que-mais-imigra-no-periodo-de-maior-imigracao', methods['POST'])
+def pais_imigracao_periodo_popular():
+    pais_popular = consulta_pais_imigracao()
+    periodo_popular = consulta_periodo_popular()
+    pais_popular = pais_popular.upper()
+    with app.app_context():
+
+        registros = db.session.query(Registro.pais, db.func.sum(Registro.qtd)).filter(Registro.pais == pais_popular, Registro.mes == periodo_popular).all() \
+            .group_by(Registro.pais) \
+            .order_by(db.desc('Total')) \
+            .first()
+        
+    return render_template('index.html', retorno_pais_imigracao_periodo_popular=str(registros.pais))
+
+#Rota 10
+
+@app.route('classificacao-de-imigrante-mais-popular-em-um-mes', methods['POST'])
+def classificacao_pais_tempo(pais_filtro, mes_filtro):
+    pais_filtro = pais_filtro.upper()
+    with app.app_context():
+        
+        registros = Registro.query(Registro.classificacao, db.func.sum(Registro.qtd)).filter(Registro.pais == pais_filtro, Registro.mes == mes_filtro).all() \
+            .group_by(Registro.classificacao) \
+            .order_by(db.desc) \
+            .first()
+
+    return render_template('index.html', retorno_classificacao_pais_tempor=str(registros.pais))
 
 # ------------- ROTAS DA API -------------
