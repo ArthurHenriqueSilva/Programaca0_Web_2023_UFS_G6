@@ -3,6 +3,28 @@ from flask_sqlalchemy import SQLAlchemy
 
 from API import *
 
+#Função auxiliar para escrever o mês por extenso
+
+def mes_nome_extenso(num_mes):
+    meses = {
+        1: 'Janeiro',
+        2: 'Fevereiro',
+        3: 'Março',
+        4: 'Abril',
+        5: 'Maio',
+        6: 'Junho',
+        7: 'Julho',
+        8: 'Agosto',
+        9: 'Setembro',
+        10: 'Outubro',
+        11: 'Novembro',
+        12: 'Dezembro'
+    }
+
+    mes_extenso = meses[num_mes]
+
+    return mes_extenso
+
 #1: Qual a distribuição de imigrantes pelo país?
 
 #5: Qual o evento do estado X que chama mais atenção para o imigrante de tipo Y?
