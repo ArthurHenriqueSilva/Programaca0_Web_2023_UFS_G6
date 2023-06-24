@@ -54,6 +54,14 @@ def cadastrar_uf(sigla):
     db.session.add(new_uf)
     db.session.commit()
 
+# 1: Qual a distribuição de imigrantes pelo país?
+
+def consulta_distribuicao_imigrantes_pais():
+    distribuicao = db.session.query(Registro.pais, Registro.classificacao, db.func.sum(Registro.qtd).label('Total')) \
+        .group_by(Registro.pais, Registro.classificacao)
+    
+    return str(distribuicao.all())
+
 # Consulta de qual país com mais imigração Q2
 def consulta_pais_imigracao():
     pais = db.session.query(Registro.pais, db.func.sum(Registro.qtd).label('Total'))\
@@ -148,6 +156,15 @@ def consulta_classificacao_pais_tempo(pais_filtro, mes_filtro):
             .first()
 
     return str(registros.classificacao)
+
+#Rota 1
+
+@app.route('/api/distribuicao-de-imigrantes-pelo-pais', methods=['POST'])
+def distribuicao_imigrantes_pais():
+    distribuicao = db.session.query(Registro.pais, Registro.classificacao, db.func.sum(Registro.qtd).label('Total')) \
+        .group_by(Registro.pais, Registro.classificacao)
+    
+    return render_template('index.html', retorno_distribuicao_de_imigrantes_por_todo_o_pais=str(distribuicao.all()))
 
 #Rota 5
 
