@@ -27,6 +27,20 @@ def mes_nome_extenso(num_mes):
 
 #1: Qual a distribuição de imigrantes pelo país?
 
+"""
+
+SELECT pais, classificacao, SUM(qtd) as Total
+FROM PUBLIC."Registro"
+GROUP BY pais, classificacao;
+
+"""
+
+def consulta_distribuicao_imigrantes_pais():
+    distribuicao = db.session.query(Registro.pais, Registro.classificacao, db.func.sum(Registro.qtd).label('Total')) \
+        .group_by(Registro.pais, Registro.classificacao)
+    
+    return str(distribuicao.all())
+
 #5: Qual o evento do estado X que chama mais atenção para o imigrante de tipo Y?
 
 """
