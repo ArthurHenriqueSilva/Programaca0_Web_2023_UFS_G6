@@ -28,16 +28,87 @@ def func_distribuicao_imigrantes_pais():
 
 
 # #q2
-# @app.route('/', methods=[''])
-# # q3
-# @app.route('/', methods=[''])
-# # q4
-# @app.route('/', methods=[''])
-# # q5
-# @app.route('/', methods=[''])
-# # q6
-# @app.route('/', methods=[''])
+@app.route('/pais_mais_imigracao_periodo', methods=['POST'])
+def func_pais_mais_imigracao_periodo():
+    mes_inicial = request.form['mes_inicio_pais_mais_imigracao_periodo']
+    mes_final = request.form['mes_fim_pais_mais_imigracao_periodo']
+    data = {'mes_inicial': mes_inicial, 'mes_final': mes_final}
+    response = requests.post('http://localhost:5000/api/pais-com-mais-imigracao-no-periodo', json=data)
+    if response.status_code == 200:
+        result = response.json()
+        pais_nome = result['pais']
+        qtd_pais = str(result['qtd_pais'])
+        resultado = 'País: '+ pais_nome + ' QTD: ' + qtd_pais
 
+        return render_template('result.html',resultado=resultado, consulta_nome='País com mais imigração em determinado período.')
+    else:
+        return 'Erro ao obter o país com mais imigração em determinado período'
+# # q3
+@app.route('/tipo_imigracao_mais_popular_periodo', methods=['POST'])
+def func_tipo_imigracao_periodo():
+    mes_inicial = request.form['mes_inicio_tipo_imigracao_mais_popular_periodo']
+    mes_final = request.form['mes_fim_tipo_imigracao_mais_popular_periodo']
+    data = {'mes_inicial': mes_inicial, 'mes_final': mes_final}
+    response = requests.post('http://localhost:5000/api/tipo-de-imigracao-mais-popular-no-periodo', json=data)
+    if response.status_code == 200:
+        result = response.json()
+        tipo_nome = result['tipo']
+        mes_inicial = result['mes_inicial']
+        mes_final = result['mes_final']
+        resultado = 'Tipo: '+ tipo_nome + ' a partir de ' + mes_inicial + ' até ' + mes_final + '.'
+
+        return render_template('result.html',resultado=resultado, consulta_nome='Tipo de imigração mais popular em determinado período.')
+    else:
+        return 'Erro ao obter o tipo de imigração mais popular em determinado período'  
+# # q4
+@app.route('/periodo_popular_tipo', methods=['POST'])
+def func_periodo_popular_tipo():
+    tipo_filtro = request.form['tipo_filtro_periodo_popular']
+    data = {'classificacao': tipo_filtro}
+    response = requests.post('http://localhost:5000/api/periodo-mais-popular-para-o-tipo', json=data)
+    if response.status_code == 200:
+        result = response.json()
+        classificacao_nome = result['classificacao']
+        periodo = result['periodo']
+        resultado = 'O período de : '+ periodo + ' é o mais popular para o tipo de imigração: ' + classificacao_nome + '.'  
+
+        return render_template('result.html',resultado=resultado, consulta_nome='Período mais popular de tipo de imigração.')
+    else:
+        return 'Erro ao obter o período mais popular de tipo de imigração'  
+# # q5
+@app.route('/mes_popular_estado', methods=['POST'])
+def func_mes_popular_estado():
+    estado_filtro = request.form['estado_filtro_mes_popular_estado']
+    classificacao_filtro = request.form['classificacao_filtro_mes_popular_estado']
+    data = {'uf': estado_filtro, 'classificacao': classificacao_filtro}
+    response = requests.post('http://localhost:5000/api/mes-que-chama-mais-atencao-para-o-imigrante-em-um-estado', json=data)
+    if response.status_code == 200:
+        result = response.json()
+        if result['mes'] == '0':
+            return render_template('result.html',resultado= 'Sem resultados', consulta_nome='Não existem dados para o filtro selecionado.')
+        estado_nome = result['uf']
+        mes = result['mes']
+        classificacao_nome = result['classificacao']
+        resultado = 'O mês de : '+ mes + ' é o mais popular para o estado: ' + estado_nome + ', atraindo mais imigrantes do tipo de classificação: ' + classificacao_nome + '.'
+
+        return render_template('result.html',resultado=resultado, consulta_nome='Mês mais popular de imigração de uma classificação para o estado.')
+    else:
+        return 'Erro ao obter o mês mais popular de imigração para o estado'    
+# # q6
+@app.route('/estado_mais_residente_no_mes', methods=['POST'])
+def func_estado_mais_residente_no_mes():
+    mes = request.form['mes_estado_mais_residente_por_periodo']
+    data = {'mes': mes}
+    response = requests.post('http://localhost:5000/api/estado-com-mais-residentes-no-mes', json=data)
+    if response.status_code == 200:
+        result = response.json()
+        estado_nome = result['estado']
+        mes_nome = result['mes']
+        resultado = 'Estado: '+ estado_nome + '. O Mês: ' + mes_nome + ' é o mais popular para o estado para residentes.'
+
+        return render_template('result.html',resultado=resultado, consulta_nome='Estado com mais residentes em determinado período.')
+    else:
+        return 'Erro ao obter o estado com mais residentes em determinado período'
 
 
 

@@ -78,7 +78,7 @@ def consulta_pais_imigracao(mes_inicial, mes_final):
                     .order_by(db.desc('Total'))\
                     .first()
 
-        return str(pais.pais)
+        return str(pais.pais), pais.Total
 
 #3: Consulta de qual é o tipo principal de imigrante que recebemos no brasil entre os meses x e y
 
@@ -94,11 +94,11 @@ def consulta_tipo_imigrante(mes_inicial, mes_final):
 
 #4: Consulta de qual é o período do ano que recebmos mais imigrantes do tipo X
 
-def consulta_periodo_popular(classificaçao_filtro):
-    classificaçao_filtro = classificaçao_filtro.capitalize()
+def consulta_periodo_popular(classificacao_filtro):
+    classificacao_filtro = classificacao_filtro.capitalize()
     with app.app_context():
         periodo = db.session.query(Registro.mes, db.func.sum(Registro.qtd).label('Total'))\
-                    .filter(Registro.classificacao == classificaçao_filtro)\
+                    .filter(Registro.classificacao == classificacao_filtro)\
                     .group_by(Registro.mes)\
                     .order_by(db.desc('Total'))\
                     .first()
@@ -114,19 +114,21 @@ def uf_nome_extenso(sigla):
 
 def consulta_mes_mais_atrativo(uf_filtro, classificacao_filtro):
     with app.app_context():
-        registros = db.session.query(Registro.mes, db.func.sum(Registro.qtd).label('Total')).filter(Registro.uf == uf_filtro, Registro.Classificacao == classificacao_filtro).all() \
+        registro = db.session.query(Registro.mes, db.func.sum(Registro.qtd).label('Total'))\
+            .filter(Registro.uf == uf_filtro, Registro.classificacao == classificacao_filtro) \
             .group_by(Registro.mes) \
             .order_by(db.desc('Total')) \
             .first()
         
-    return str(registros.mes)
+    return registro
+
 
 # 6: Qual o estado que possui mais registros de imigrantes residentes no mes X?
 
 def consulta_estado_mais_residentes(mes_filtro):
     with app.app_context():
         estado = db.session.query(Residente.uf, db.func.count().label('Total')) \
-            .filter(Residente.mes == mes_filtro) \
+            .filter(Registro.mes == mes_filtro) \
             .group_by(Residente.uf) \
             .order_by(db.desc('Total')) \
             .first()
@@ -206,8 +208,8 @@ def distribuicao_imigrantes_pais():
 @app.route('/api/pais-com-mais-imigracao-no-periodo', methods=['POST'])
 def pais_com_mais_imigracao():
     meses_filtro = [request.json.get('mes_inicial'), request.json.get('mes_final')]
-    pais = consulta_pais_imigracao(mes_inicial=meses_filtro[0], mes_final=meses_filtro[1])
-    return jsonify({'pais': pais, 'mes_inicial': meses_filtro[0], 'mes_final': meses_filtro[1]})
+    pais, qtd_pais = consulta_pais_imigracao(mes_inicial=meses_filtro[0], mes_final=meses_filtro[1])
+    return jsonify({'pais': pais, 'qtd_pais': qtd_pais, 'mes_inicial': meses_filtro[0], 'mes_final': meses_filtro[1]})
 
 #Rota 3
 @app.route('/api/tipo-de-imigracao-mais-popular-no-periodo', methods=['POST'])
@@ -230,15 +232,16 @@ def mes_mais_atrativo():
     uf_filtro = request.json.get('uf')
     classificacao_filtro = request.json.get('classificacao')
     registro = consulta_mes_mais_atrativo(uf_filtro=uf_filtro, classificacao_filtro=classificacao_filtro)
-        
-    return jsonify({'mes': registro, 'uf': uf_filtro, 'classificacao': classificacao_filtro})
+    if registro is None:
+        return jsonify({'mes': '0', 'uf': uf_filtro, 'classificacao': classificacao_filtro})
+    return jsonify({'mes': str(registro.mes), 'uf': uf_filtro, 'classificacao': classificacao_filtro})
 
 #Rota 6
 @app.route('/api/estado-com-mais-residentes-no-mes', methods=['POST'])
 def estado_mais_residentes():
     mes_filtro = request.json.get('mes')
     estado_mais_residentes = consulta_estado_mais_residentes(mes_filtro=mes_filtro)
-    estado_nome = estados[estado_mais_residentes]
+    estado_nome = estado_mais_residentes
     return jsonify({'estado': estado_nome, 'mes': mes_filtro})
 
 #Rota 7
