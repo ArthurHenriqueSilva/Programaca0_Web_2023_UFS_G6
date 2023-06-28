@@ -226,7 +226,7 @@ def tipo_imigracao_popular():
 @app.route('/api/periodo-mais-popular-para-o-tipo', methods=['POST'])
 def periodo_popular():
     classificacao_filtro = request.json.get('classificacao')
-    periodo = consulta_periodo_popular(classificaçao_filtro=classificacao_filtro)
+    periodo = consulta_periodo_popular(classificacao_filtro=classificacao_filtro)
     return jsonify({'periodo': periodo, 'classificacao': classificacao_filtro})
 
 #Rota 5
