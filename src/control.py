@@ -26,6 +26,8 @@ def func_distribuicao_imigrantes_pais():
         consulta = 'Distribuição de imigrantes: ' + pais_filtro
         return render_template('result.html', resultado=resultado, consulta_nome=consulta)
 
+    else:
+        return 'Erro ao obter a distribuição de imigrantes do país escolhido.'
 
 # #q2
 @app.route('/pais_mais_imigracao_periodo', methods=['POST'])
@@ -112,6 +114,7 @@ def func_estado_mais_residente_no_mes():
 
 
 
+
 # q7
 @app.route('/estado_mais_imigrantes', methods=['POST'])
 def func_estado_mais_imigrantes():
@@ -129,11 +132,51 @@ def func_estado_mais_imigrantes():
         return 'Erro ao obter o estado com mais imigrantes'
     
 # # q8
-# @app.route('/', methods=[''])
+@app.route('/tipo_imigrante_pais', methods=['POST'])
+def func_tipo_imigrante_pais():
+    pais_filtro = request.form['pais_filtro_tipo_imigrante_pais']
+    data = {'pais':pais_filtro}
+    response = requests.post('http://localhost:5000/api/maior-tipo-imigrante-do-pais',json=data)
+    if response.status_code == 200:
+        result = response.json()
+        pais = result['pais']
+        tipo = result['tipo']
+        resultado = 'Pais: ' + pais + '<br>' + ' Tipo de imigrante mais comum: ' + tipo
+        return render_template('result.html', resultado=resultado, consulta_nome='Tipo mais comum de imigrante de determinado País.')
+    else:
+        return 'Erro ao obter o tipo mais comum de imigrantes do país escolhido.'
 # # q9
-# @app.route('/', methods=[''])
+@app.route('/quantidade_pais_maior_periodo_imigracao', methods=['POST'])
+def func_pais_imigracao_periodo_popular():
+    pais_filtro = request.form['pais_filtro_pais_imigracao_periodo_popular']
+    mes_filtro = request.form['mes_filtro_pais_imigracao_periodo_popular']
+    data = {'pais':pais_filtro, 'mes':mes_filtro}
+    response = requests.post('http://localhost:5000/api/quantidade-do-pais-no-periodo-de-maior-imigracao', json=data)
+    if response.status_code == 200:
+        result = response.json()
+        pais = result['pais']
+        mes = result['mes']
+        qtd = result['quantidade']
+        resultado = 'mes: ' + mes + '<br>' + 'pais: ' + pais + '<br>' + 'quantidade de imigrantes: ' + qtd
+        return render_template('result.html', resultado=resultado, consulta_nome='Quantidade de imigrantes de determinado país no mês especificado.')
+    else:
+        return 'Erro ao obter a quantidade de imigrantes do país escolhido no período informado'
 # # q10
-# @app.route('/', methods=[''])
+@app.route('/classificacao_imigracao_mais_popular_mes', methods=['POST'])
+def func_classificacao_pais_tempo():
+    pais_filtro = request.form['pais_filtro_classificacao_imigracao_mais_popular_mes']
+    mes_filtro = request.form['mes_filtro_classificacao_pais_tempo']
+    data = {'pais':pais_filtro, 'mes':mes_filtro}
+    response = requests.post('http://localhost:5000/api/classificacao-de-imigrante-mais-popular-em-um-mes', json=data)
+    if response.status_code == 200:
+        result = response.json()
+        pais = result['pais']
+        mes = result['mes']
+        classif = result['classificacao']
+        resultado = 'mes: ' + mes + '<br>' + 'pais: ' + pais + '<br>' + 'classificação: ' + classif
+        return render_template('result.html', resultado=resultado, consulta_nome='Quantidade de imigrantes de determinado país no mês especificado.')
+    else:
+        return 'Erro ao obter a classificação mais recorrente no mês especificado advindos do país escolhido.'
 
 if __name__ == '__main__':
     app.run()
