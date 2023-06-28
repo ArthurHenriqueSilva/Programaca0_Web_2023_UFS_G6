@@ -67,7 +67,6 @@ def consulta_distribuicao_imigrantes_pais(pais_filtro):
             .all()
 
         return dict(sorted(distribuicao, key=lambda tup: tup[1]))
-
 #2: Consulta de qual país com mais imigração entre os meses x e y
 
 def consulta_pais_imigracao(mes_inicial, mes_final):
@@ -134,6 +133,7 @@ def consulta_estado_mais_residentes(mes_filtro):
             .first()
         nome_ext = uf_nome_extenso(str(estado.uf))
         return(nome_ext)
+    
 
 # 7: Qual estado recebe mais imigrantes do país X?
 
@@ -173,27 +173,31 @@ def consulta_imigracao_recorrente_do_pais(pais_filtro):
 
 # 9: Qual a quantidade de imigrante do país no período de maior chegada de imigrantes no país?
 
-def consulta_quantidade_pais_periodo_popular(periodo_popular,pais_filtro):
+def consulta_quantidade_pais_periodo_popular(periodo_popular, pais_filtro):
+    pais_filtro = pais_filtro.upper()
     with app.app_context():
-        registros = db.session.query(Registro.pais, db.func.sum(Registro.qtd).label('Total'))\
-            .filter(Registro.pais == pais_filtro, Registro.mes == periodo_popular).all() \
+        registros = db.session.query(Registro.pais, db.func.sum(Registro.qtd).label('Total')) \
+            .filter(Registro.pais == pais_filtro, Registro.mes == periodo_popular) \
             .group_by(Registro.pais) \
             .order_by(db.desc('Total')) \
             .first()
-        
+
     return str(registros.Total)
+
 
 # 10: Qual a classificação do país X que mais recebemos no tempo Y?
 
 def consulta_classificacao_pais_tempo(pais_filtro, mes_filtro):
     pais_filtro = pais_filtro.upper()
     with app.app_context():
-        registros = Registro.query(Registro.classificacao, db.func.sum(Registro.qtd).label('Total')).filter(Registro.pais == pais_filtro, Registro.mes == mes_filtro).all() \
-            .group_by(Registro.classificacao) \
-            .order_by(db.desc('Total')) \
-            .first()
+        registros = db.session.query(Registro.classificacao, db.func.sum(Registro.qtd).label('Total')) \
+                    .filter(Registro.pais == pais_filtro, Registro.mes == mes_filtro) \
+                    .group_by(Registro.classificacao) \
+                    .order_by(db.desc('Total')) \
+                    .first()
 
-    return str(registros.classificacao)
+        return str(registros.classificacao)
+
 
 #Rota 1
 
@@ -267,7 +271,7 @@ def tipo_imigrante_pais():
 def pais_imigracao_periodo_popular():
     pais_filtro = request.json.get('pais')
     mes_filtro = request.json.get('mes')
-    qtd_pais = consulta_quantidade_pais_periodo_popular(pais_filtro, mes_filtro)
+    qtd_pais = consulta_quantidade_pais_periodo_popular(mes_filtro, pais_filtro)
     return jsonify({'pais': pais_filtro, 'mes': mes_filtro, 'quantidade': qtd_pais})    
 
 
