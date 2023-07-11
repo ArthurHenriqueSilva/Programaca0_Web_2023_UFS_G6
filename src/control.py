@@ -179,4 +179,4 @@ def func_classificacao_pais_tempo():
         return 'Erro ao obter a classificação mais recorrente no mês especificado advindos do país escolhido.'
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0")
+    app.run(host='0.0.0.0')
