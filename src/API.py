@@ -1,12 +1,27 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from aux_data import estados, meses
+from flask_httpauth import HTTPBasicAuth
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)  # create Flask app
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:chaveacesso@db-instance-prog-web.cuokvhdjyvdp.us-east-1.rds.amazonaws.com/Database_SISMIGRA'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+auth = HTTPBasicAuth()
 db = SQLAlchemy(app)
 from models import Registro, Residente, Provisorio, Temporario, Fronteirico, Pais, UF
+
+users = {
+    "arthur": generate_password_hash("henrique"),
+    "guilherme": generate_password_hash("linard"),
+    "raul": generate_password_hash("miguel")
+}
+
+@auth.verify_password
+def verify_password(usuario, senha):
+    if usuario in users and \
+            check_password_hash(users.get(usuario), senha):
+        return usuario
 
 # ---------- Funções Aux DA API -------------
 # Cadastro de Imigrante Residente
@@ -198,6 +213,10 @@ def consulta_classificacao_pais_tempo(pais_filtro, mes_filtro):
 
         return str(registros.classificacao)
 
+@app.route('/')
+@auth.login_required
+def index():
+    return "Ola, %s!" % auth.current_user()
 
 #Rota 1
 
