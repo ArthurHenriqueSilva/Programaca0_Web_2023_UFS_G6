@@ -1,22 +1,12 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from aux_data import estados, meses
-from flask_httpauth import HTTPBasicAuth
-from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)  # create Flask app
-auth = HTTPBasicAuth()
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:chaveacesso@db-instance-prog-web.cuokvhdjyvdp.us-east-1.rds.amazonaws.com/Database_SISMIGRA'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 from models import Registro, Residente, Provisorio, Temporario, Fronteirico, Pais, UF
-
-users = { "usuario": generate_password_hash("senha"), }
-
-@auth.verify_password
-def verificar_senha(usuario, senha):
-    if usuario in users and check_password_hash(users.get("usuario"),senha):
-        return usuario
 
 # ---------- Funções Aux DA API -------------
 # Cadastro de Imigrante Residente
