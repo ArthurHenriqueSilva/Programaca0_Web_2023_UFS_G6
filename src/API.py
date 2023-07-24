@@ -213,11 +213,6 @@ def consulta_classificacao_pais_tempo(pais_filtro, mes_filtro):
 
         return str(registros.classificacao)
 
-@app.route('/')
-@auth.login_required
-def index():
-    return "Ola, %s!" % auth.current_user()
-
 #Rota 1
 
 @app.route('/api/distribuicao-de-imigrantes-pelo-pais', methods=['POST'])
