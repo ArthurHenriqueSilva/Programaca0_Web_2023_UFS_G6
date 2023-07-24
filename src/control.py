@@ -3,7 +3,14 @@ from API import app
 import requests
 from models import *
 
+@auth.verify_password
+def verify_password(usuario, senha):
+    if usuario in users and \
+            check_password_hash(users.get(usuario), senha):
+        return usuario
+
 @app.route('/')
+@auth.login_required
 def index():
     return render_template('index.html')
 
