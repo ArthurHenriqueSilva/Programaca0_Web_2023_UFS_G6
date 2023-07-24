@@ -8,8 +8,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 from models import Registro, Residente, Provisorio, Temporario, Fronteirico, Pais, UF
 
-}
-
 # ---------- Funções Aux DA API -------------
 # Cadastro de Imigrante Residente
 def cadastrar_residente(uf, pais, qtd):
