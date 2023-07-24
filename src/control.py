@@ -25,9 +25,9 @@ def index():
     return render_template('index.html')
 
 @app.route('/client')
-def client():
-    ip_addr = request.environ['REMOTE_ADDR']
-    return '<h1> Seu endereço de IP é: ' + ip_addr
+def proxy_client():
+    ip_addr = request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
+    return '<h1> Seu endereço de IP é:' + ip_addr
 
 # q1
 @app.route('/distribuicao_imigrantes_pais', methods=['POST'])
