@@ -6,6 +6,7 @@
     <title>Primeiro Teste - Implantação</title>
 </head>
 <body>
+    O seu endereço IP é: <? echo $_SERVER["REMOTE_ADDR"]; ?>
     <h1>Distribuição dos imigrantes de determinado país. q1</h1>
     <form action="/distribuicao_imigrantes_pais" method="post">
         <label for="pais_filtro_distribuicao_imigrantes_pais">Pais para filtragem: </label>
