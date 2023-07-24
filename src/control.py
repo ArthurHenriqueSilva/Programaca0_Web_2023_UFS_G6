@@ -2,6 +2,8 @@ from flask import render_template, request
 from API import app
 import requests
 from models import *
+from flask_httpauth import HTTPBasicAuth
+from werkzeug.security import generate_password_hash, check_password_hash
 
 auth = HTTPBasicAuth()
 
