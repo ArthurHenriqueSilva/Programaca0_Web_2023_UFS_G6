@@ -7,6 +7,12 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 auth = HTTPBasicAuth()
 
+users = {
+    "arthur": generate_password_hash("henrique"),
+    "guilherme": generate_password_hash("linard"),
+    "raul": generate_password_hash("miguel")
+}
+
 @auth.verify_password
 def verify_password(usuario, senha):
     if usuario in users and \
