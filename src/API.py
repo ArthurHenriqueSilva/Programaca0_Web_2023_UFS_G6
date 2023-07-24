@@ -1,8 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from aux_data import estados, meses
-from flask_httpauth import HTTPBasicAuth
-from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)  # create Flask app
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:chaveacesso@db-instance-prog-web.cuokvhdjyvdp.us-east-1.rds.amazonaws.com/Database_SISMIGRA'
@@ -10,10 +8,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 from models import Registro, Residente, Provisorio, Temporario, Fronteirico, Pais, UF
 
-users = {
-    "arthur": generate_password_hash("henrique"),
-    "guilherme": generate_password_hash("linard"),
-    "raul": generate_password_hash("miguel")
 }
 
 # ---------- Funções Aux DA API -------------
