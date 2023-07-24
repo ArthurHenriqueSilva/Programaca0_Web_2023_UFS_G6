@@ -17,12 +17,6 @@ users = {
     "raul": generate_password_hash("miguel")
 }
 
-@auth.verify_password
-def verify_password(usuario, senha):
-    if usuario in users and \
-            check_password_hash(users.get(usuario), senha):
-        return usuario
-
 # ---------- Funções Aux DA API -------------
 # Cadastro de Imigrante Residente
 def cadastrar_residente(uf, pais, qtd):
