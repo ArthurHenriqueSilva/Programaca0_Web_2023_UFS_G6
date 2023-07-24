@@ -3,6 +3,8 @@ from API import app
 import requests
 from models import *
 
+auth = HTTPBasicAuth()
+
 @auth.verify_password
 def verify_password(usuario, senha):
     if usuario in users and \
