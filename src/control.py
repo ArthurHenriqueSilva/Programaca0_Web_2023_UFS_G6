@@ -22,7 +22,7 @@ def verify_password(usuario, senha):
 @app.route('/')
 @auth.login_required
 def index():
-    return render_template('index.html')
+    return render_template('index.php')
 
 # q1
 @app.route('/distribuicao_imigrantes_pais', methods=['POST'])
