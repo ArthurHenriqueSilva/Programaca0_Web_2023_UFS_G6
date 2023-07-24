@@ -22,7 +22,12 @@ def verify_password(usuario, senha):
 @app.route('/')
 @auth.login_required
 def index():
-    return render_template('index.php')
+    return render_template('index.html')
+
+@app.route('/client')
+def client():
+    ip_addr = request.environ['REMOTE_ADDR']
+    return '<h1> Seu endereço de IP é: ' + ip_addr
 
 # q1
 @app.route('/distribuicao_imigrantes_pais', methods=['POST'])
